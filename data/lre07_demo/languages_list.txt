@@ -1,0 +1,14 @@
+arabic
+bengali
+chinese
+english
+farsi
+german
+hindustani
+japanese
+korean
+russian
+spanish
+tamil
+thai
+vietnamese
