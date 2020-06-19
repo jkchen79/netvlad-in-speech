@@ -16,13 +16,13 @@ An end-to-end framework using NetVLAD for language identification and speaker re
 ![End-to-End framework for LID and SRE](https://github.com/jkchen79/netvlad-in-speech/blob/master/images/end-to-end_framework_for_LID_SRE.png)
 （图片摘自第二篇参考论文）
 
-提取fbank声学特征，以Resnet为帧基本的特征提取器，以NetVLAD为编码层，将变长的输入数据整合为语句级别的固定维度的embedding表示。输出层根据具体的语种识别或说话人识别任务作相应调整。
+提取fbank声学特征，以Resnet为帧级别的特征提取器，以NetVLAD为编码层，将变长的输入数据编码为语句级别的固定维度的embedding表示。输出层根据具体的语种识别或说话人识别任务作相应调整。
 
 ## NetVLAD编码层
 NetVLAD可以高效地从大小变化的二维输入数据中提取多个维度的信息，并整合输出维度固定的向量表示，可在语种识别和声纹识别中应用（参考论文1和3）。
   - LRE07语种识别结果（摘自参考论文1）
   
-|ID| Model | 3s Cavg (%) / EER(%) | 3s Cavg (%) / EER(%) |3s Cavg (%) / EER(%)   
+|ID| Model | 3s Cavg (%) / EER(%) | 10s Cavg (%) / EER(%) |30s Cavg (%) / EER(%)   
 |---|--------- | --- | --- | ------    
 |1| Resnet34 + AvgPool | 9.24 / 10.91 | 3.39 / 5.58 | 1.83 / 3.64 
 |2| Resnet34 + NetVLAD 64 |**8.59 / 8.08** | **2.80 / 2.50** | **1.32 / 1.02** 
