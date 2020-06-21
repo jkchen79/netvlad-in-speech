@@ -60,8 +60,8 @@ class ResNet(nn.Module):
         self.bn2 = nn.BatchNorm1d(128)
         self.relu = nn.ReLU(inplace=True)
         self.layer1 = self.make_layer(block, 16, layers[0])
-        self.layer2 = self.make_layer(block, 32, layers[1], (1, 2))
-        self.layer3 = self.make_layer(block, 64, layers[2], (1, 2))
+        self.layer2 = self.make_layer(block, 32, layers[1], 2)
+        self.layer3 = self.make_layer(block, 64, layers[2], 2)
         self.layer4 = self.make_layer(block, 128, layers[3], 2)
 
     @property
