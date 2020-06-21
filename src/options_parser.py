@@ -97,9 +97,6 @@ class Options_Parser:
             help='If True, outputs of the AvgPool layer will be L2-normalized.')
 
         self.parser.add_argument(
-            '--embedding-size', dest='embedding_size', type=int, default=64,
-            help='The output embedding size for the penultimate fully connected layer.')
-        self.parser.add_argument(
             '--l2norm-constrained', dest='l2norm_constrained',  action='store_true',
             help='If True, multiple a learnable l2norm-alpha after L2Norm layers (default is False).')
         self.parser.add_argument(
@@ -163,6 +160,8 @@ class Options_Parser:
 
         if config.do_eval or config.do_predict:
             config.dropout_rate = 0
+            config.batch_size = 1
+
         return config
 
     def register(self, arg, dest, arg_type, default=None, action=None, help=""):

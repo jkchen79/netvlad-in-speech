@@ -57,7 +57,7 @@ def do_evaluation(model, dataloader, logger):
     int2target = dataloader.get_int2target_dict()
     for i, batch_data in enumerate(dataloader):
         utt = batch_data["utt"]
-        feats = torch.unsqueeze(batch_data["feats"], dim=1)
+        feats = torch.unsqueeze(batch_data["feats"][:,:8000,:], dim=1)
         # transpose the feats to (batch_size, 1, feat_dim, length)
         feats = torch.transpose(feats, 2, 3).cuda()
         targets = batch_data["targets"].cuda()
@@ -73,7 +73,7 @@ def do_evaluation(model, dataloader, logger):
     return (acc_rate, num_samples, correct_cnt)
 
 def evaluate(config, logger):
-    model = CTC_LID_Model(config)
+    model = NNetModel(config)
     ckpt_params = OrderedDict()
     for k, v in torch.load(config.ckpt).items():
         k = re.sub("^module.", "", k)
@@ -83,6 +83,7 @@ def evaluate(config, logger):
     model = nn.DataParallel(model)
     model = model.cuda()
 
+    # TODO: evaluate the dataset in mini-batch (batch_size > 1).
     eval_dataloader = SpeechDataLoader(config.eval_utt2npy,
                                        utt2target=config.eval_utt2target,
                                        targets_list=config.targets_list,
@@ -93,8 +94,8 @@ def evaluate(config, logger):
                                        padding_batch=config.padding_batch
                                        )
     acc_rate, num_samples, correct_cnt = do_evaluation(model, eval_dataloader, logger)
-    logger.info("Epoch [%d/%d], eval num_samples = %d, correct_cnt = %d, acc = %.6f" % 
-                (epoch, num_epochs, num_samples, correct_cnt, acc_rate))
+    logger.info("eval num_samples = %d, correct_cnt = %d, acc = %.6f" % 
+                (num_samples, correct_cnt, acc_rate))
 
 def setup_optimizer(model, optimizer_name, learning_rate):
     optimizer = None
@@ -154,7 +155,7 @@ def train(config, logger):
         dev_dataloader = SpeechDataLoader(config.eval_utt2npy,
                                        utt2target=config.eval_utt2target,
                                        targets_list=config.targets_list,
-                                       batch_size=torch.cuda.device_count(),
+                                       batch_size=1,
                                        num_workers=config.num_workers,
                                        training=False,
                                        shuffle=False,
@@ -182,7 +183,7 @@ def train(config, logger):
         if epoch % 10 == 0 or (epoch > num_epochs // 2 and epoch % 5 == 0) or epoch > int(0.9 * num_epochs):
             logger.info("Begin to evaluate dev-set ...")
             acc, num_samples, correct_cnt = do_evaluation(model, dev_dataloader, logger)
-            logger.info("Epoch [%d/%d], dev num_samples = %d, correct_cnt = %d, acc = %.6f" % 
+            logger.info("Epoch [%d/%d], dev num_samples = %d, correct_cnt = %d, acc = %.6f" %
                     (epoch, num_epochs, num_samples, correct_cnt, acc))
             ckpt_path = "%s/ckpt-epoch-%d-acc-%.4f.mdl" % (config.ckpt_dir, epoch, acc)
             torch.save(model.state_dict(), ckpt_path)
